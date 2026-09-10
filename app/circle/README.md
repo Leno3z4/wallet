@@ -1,0 +1,1 @@
+Circle integrations are embedded throughout the wallet surfaces rather than presented as a separate product hub.
