@@ -1,6 +1,6 @@
 # wallet
 
-A multichain EVM wallet focused on simple payments, human-readable transaction review, wallet memory, and Circle-powered stablecoin infrastructure.
+A multichain EVM wallet focused on simple payments, wallet memory, and stablecoin-first infrastructure.
 
 ## Stack
 
@@ -8,30 +8,28 @@ A multichain EVM wallet focused on simple payments, human-readable transaction r
 - Privy for Google authentication and embedded EVM wallets
 - viem for EVM reads and transaction primitives
 - LI.FI for mainnet swap / bridge routing
-- Circle infrastructure for USDC, CCTP, Gateway, and Circle product integrations
+- Circle infrastructure woven into the core wallet UX
 
-## Circle product surface
+## Circle capabilities integrated into the wallet
 
-The `/circle` page now brings together Circle's current developer stack in the wallet UX:
+Circle is not a separate destination. Its capabilities are used where they make the wallet better:
 
-- USDC and EURC asset model
-- Circle Wallets
-- Circle Contracts
-- CCTP
-- Gateway unified USDC
-- Paymaster USDC gas abstraction
-- Gas Station sponsored fees
-- Compliance Engine transaction screening
-- Modules for programmable onchain actions
-- App Kits for send / swap / bridge application flows
-- Arc settlement network
-- xReserve USDC-backed stablecoins
-- Circle Payments Network for global partner settlement
-- Circle Mint for institutional mint / redeem flows
-- x402 for USDC-powered internet / agent payments
-- Circle Console developer management
-
-Gateway testnet balances are queried through Circle's Gateway API, and CCTP testnet Fast Transfer allowance + route fee data are queried from Circle's public APIs. Products requiring developer credentials, smart-account infrastructure, merchant onboarding, or institutional access are shown as ready / partner integrations rather than being falsely marked live.
+- **USDC + EURC:** first-class stablecoin assets and live balance reads where supported.
+- **Gateway:** unified USDC balance visibility and a foundation for instant crosschain liquidity and nanopayments.
+- **CCTP:** preferred native-USDC rail for supported crosschain movement; CCTP testnet fee/allowance data is exposed to the bridge experience.
+- **Paymaster:** USDC gas option is surfaced for compatible EIP-7702 / smart-account flows without falsely claiming the current Privy wallet is using a Paymaster transaction.
+- **Gas Station:** sponsored gas policies are represented in the transfer/payment experience.
+- **Compliance Engine:** screening is represented as a pre-submission safety layer for configured deployments.
+- **Contracts + Modules:** programmable onchain actions and audited contract modules are represented in the transaction/dapp model.
+- **App Kits:** the wallet architecture keeps send, swap, bridge and contract actions modular so Circle SDK components can be attached without rewriting the UI.
+- **Circle Wallets:** compatible wallet-account patterns are reflected in the account architecture.
+- **Circle Payments Network:** payin/payout and stablecoin settlement are represented in the Buy/Sell and payments surfaces for eligible integrations.
+- **Circle Mint:** institutional mint/redeem liquidity is represented as a funding and settlement rail.
+- **StableFX:** USDC/EURC FX is represented in the multi-currency stablecoin model for future configured settlement flows.
+- **xReserve:** USDC-backed stablecoin interoperability is represented in the crosschain infrastructure model.
+- **Arc:** Arc Testnet is surfaced in Networks with its Chain ID and RPC details.
+- **x402 + Gateway Nanopayments:** the Browser can recognize the model for USDC-powered API/service payments and gasless batched payments.
+- **Agent Wallets:** the browser/payment model is compatible with scoped agent spending and service payments.
 
 ## Google + automatic wallet creation
 
@@ -62,23 +60,27 @@ Mainnets: Ethereum, Base, Arbitrum, Optimism, Polygon.
 
 Testnets: Ethereum Sepolia, Base Sepolia, Arbitrum Sepolia, Optimism Sepolia, Polygon Amoy.
 
-Every network has its own page under `/networks/<network-key>`, while the same EVM wallet address can be used across the network set.
+Arc Testnet is also surfaced as a Circle network option; it currently uses Chain ID `5042002` and `https://rpc.testnet.arc.network` according to Circle's developer documentation.
+
+Every enabled network has its own page under `/networks/<network-key>`, while the same EVM wallet address can be used across the EVM network set.
 
 ## Current app
 
 - Google login
 - Automatic embedded EVM wallet creation
-- Multichain live native + USDC balance reads
-- Real ETH and USDC transfer signing through Privy
-- Human-readable transfer review
-- Mainnet-only LI.FI swap and bridge quotes with executable transaction requests
-- Circle Gateway unified-USDC balance visibility on testnet
-- Circle CCTP testnet Fast Transfer allowance and fee visibility
+- Multichain live native + USDC + EURC balance reads where Circle tokens are available
+- Real ETH, USDC and EURC transfer signing through Privy
 - Username-based recipient resolution
+- Human-readable transfer review
+- Circle-aware gas/payment choices
+- Mainnet-only LI.FI swap and bridge quotes
+- Gateway unified-USDC balance visibility on testnet
+- CCTP Fast Transfer allowance and fee visibility
 - Page switcher dropdown in the top bar
-- Dedicated chain pages for every enabled mainnet and testnet
+- Dedicated chain pages for every enabled mainnet/testnet network
+- Stablecoin-oriented funding and payment surfaces
 - Clean, neutral visual system with no decorative gradients
 
 ## Notes
 
-Testnet assets have no financial value. The buy / sell surface is provider-ready but fiat onramp/offramp requires a configured provider and the appropriate compliance flow. Full cross-site Web3 browser provider injection requires a browser extension or mobile deep-link environment; the web app keeps the browser surface intentionally isolated.
+Testnet assets have no financial value. Some Circle products require developer API credentials, merchant or institutional onboarding, smart-account configuration, or other eligibility requirements. Those flows are surfaced contextually and remain explicitly configuration-dependent until the necessary Circle integration is configured.
