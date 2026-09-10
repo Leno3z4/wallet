@@ -1,0 +1,4 @@
+import { CreditCard } from 'lucide-react';
+import { AuthGate } from '@/components/auth-gate';
+import { ToolPage, SelectBox, ActionButton } from '@/components/tool-page';
+export default function Buy(){return <AuthGate><ToolPage title="Buy / sell" eyebrow="On-ramp & off-ramp" description="Buy crypto with fiat or sell crypto back out."><div className="form-card"><div className="segmented"><button className="selected">Buy</button><button>Sell</button></div><SelectBox label="Asset" options={['USDC','ETH','USDT']} value="USDC" onChange={()=>{}}/><label className="field"><span>Amount</span><div className="input-combo"><input placeholder="100.00"/><b>USD</b></div></label><div className="provider-card"><CreditCard size={17}/><div><strong>Payment provider</strong><span>Provider selection will appear here.</span></div></div><ActionButton>Continue to payment</ActionButton></div></ToolPage></AuthGate>}
