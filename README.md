@@ -9,7 +9,7 @@ A multichain EVM wallet focused on simple payments, wallet memory, stablecoin-fi
 - viem for EVM reads and transaction primitives
 - LI.FI for mainnet swap / bridge routing
 - Circle infrastructure woven into the core wallet UX
-- MCP-compatible remote agent endpoint
+- OAuth-protected remote MCP endpoint
 
 ## Agent + GPT access
 
@@ -19,15 +19,44 @@ The wallet exposes a remote Model Context Protocol endpoint at:
 /api/mcp
 ```
 
-Discovery metadata is available at:
+The endpoint is now protected by an OAuth authorization server backed by the wallet's existing Privy identity layer. An MCP client discovers the flow through:
+
+```text
+/.well-known/oauth-protected-resource
+/.well-known/oauth-authorization-server
+```
+
+and the convenience discovery document remains available at:
 
 ```text
 /.well-known/mcp.json
 ```
 
-The MCP server exposes read tools for wallet address context, supported networks, balances, username resolution, payment capabilities, and a transaction-preparation tool. Agent calls can prepare a transfer, but they cannot sign or broadcast it through MCP; the wallet remains the final authorization boundary.
+The authorization flow uses OAuth Authorization Code + PKCE (S256). The user signs in through the wallet's Privy-backed consent screen. The server then binds the issued MCP token to the authenticated Privy user and their Ethereum embedded-wallet address. MCP requests never accept a caller-supplied address as the wallet identity.
 
-For a deployed app, set an `AGENT_MCP_API_KEY` environment variable and require the agent to send it as a Bearer token. For production multi-user access, replace the shared API-key mode with an OAuth/OIDC identity binding that maps the agent session to a specific wallet user.
+Supported scopes:
+
+- `wallet:read` — wallet address, native balances, networks, username resolution, and payment capabilities.
+- `wallet:prepare` — prepare a transfer proposal for human review; it does not authorize signing or broadcasting.
+
+Authorization codes are short-lived, stored hashed in Supabase, bound to the client, redirect URI and PKCE challenge, and marked one-time-use on redemption. Access tokens are short-lived and signed with `MCP_OAUTH_SECRET`; refresh tokens have a separate audience and lifetime.
+
+Set these server-side environment variables:
+
+```bash
+NEXT_PUBLIC_APP_URL=https://your-wallet-domain.example
+NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+PRIVY_APP_SECRET=your_privy_app_secret
+MCP_OAUTH_SECRET=replace_with_a_long_random_secret
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
+
+In the Privy dashboard, enable user identity tokens under User management > Authentication > Advanced. The wallet uses the identity token on the OAuth consent page to securely establish the logged-in Privy user before issuing an MCP authorization code.
+
+Run `supabase/mcp_oauth.sql` in the same Supabase project that stores usernames.
+
+The MCP authorization model follows the current MCP direction toward OAuth-based protected resources, PKCE, issuer-aware credentials, and Client ID Metadata Documents rather than a shared API key. citeturn701183search0turn701183search4
 
 ## Circle capabilities integrated into the wallet
 
@@ -54,22 +83,11 @@ Circle is not a separate destination. Its capabilities are used where they make 
 
 Configure Google as a login method in Privy and enable embedded Ethereum wallets with `createOnLogin: 'users-without-wallets'`.
 
-Set:
-
-```bash
-NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
-```
-
 ## Global usernames
 
 Users can reserve a username such as `Centry`. Matching is case-insensitive, so `Centry`, `centry`, and `CENTRY` all resolve to the same canonical username. The selected display casing is preserved.
 
-Global uniqueness is stored in Supabase. Run `supabase/usernames.sql`, then configure:
-
-```bash
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-```
+Global uniqueness is stored in Supabase. Run `supabase/usernames.sql`, then configure the Supabase environment variables shown above.
 
 The transfer flow accepts either a `0x…` address or `@username` and resolves the username before signing.
 
@@ -98,9 +116,11 @@ Every enabled network has its own page under `/networks/<network-key>`, while th
 - Page switcher dropdown in the top bar
 - Dedicated chain pages for every enabled mainnet/testnet network
 - Stablecoin-oriented funding and payment surfaces
-- Remote MCP endpoint for GPTs and other agents
+- OAuth-protected remote MCP endpoint for GPTs and other agents
 - Clean, neutral visual system with no decorative gradients
 
 ## Notes
 
 Testnet assets have no financial value. Some Circle products require developer API credentials, merchant or institutional onboarding, smart-account configuration, or other eligibility requirements. Those flows are surfaced contextually and remain explicitly configuration-dependent until the necessary integration is configured.
+
+The repository does not claim signing or transaction broadcast from the MCP server: an agent can prepare actions, but the wallet UI remains the signing boundary.
