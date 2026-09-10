@@ -17,7 +17,6 @@ export const TESTNET_CHAINS = [
 ] as const;
 
 export const SUPPORTED_CHAINS = [...MAINNET_CHAINS, ...TESTNET_CHAINS] as const;
-
 export type SupportedChain = (typeof SUPPORTED_CHAINS)[number];
 
 export const USDC: Record<number, `0x${string}`> = {
@@ -31,6 +30,13 @@ export const USDC: Record<number, `0x${string}`> = {
   421614: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
   11155420: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
   80002: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
+};
+
+export const EURC: Record<number, `0x${string}`> = {
+  1: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c',
+  8453: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
+  11155111: '0x08210F9170F89Ab7658F0B5E3fF39b0E03C594D4',
+  84532: '0x808456652fdb597867f38412077A9182bf77359F',
 };
 
 export const ERC20_ABI = [
