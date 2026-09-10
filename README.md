@@ -56,7 +56,7 @@ In the Privy dashboard, enable user identity tokens under User management > Auth
 
 Run `supabase/mcp_oauth.sql` in the same Supabase project that stores usernames.
 
-The MCP authorization model follows the current MCP direction toward OAuth-based protected resources, PKCE, issuer-aware credentials, and Client ID Metadata Documents rather than a shared API key. citeturn701183search0turn701183search4
+The MCP authorization model follows the current MCP direction toward OAuth-based protected resources, PKCE, issuer-aware credentials, and Client ID Metadata Documents rather than a shared API key.
 
 ## Circle capabilities integrated into the wallet
 
