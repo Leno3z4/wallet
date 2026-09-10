@@ -19,22 +19,11 @@ export function UsernameCard() {
     setSaved(window.localStorage.getItem(KEY) ?? '');
   }, []);
 
-  const checkAvailability = async (value: string) => {
-    const normalized = value.trim().normalize('NFKC').toLowerCase();
-    if (!normalized) return null;
-    const response = await fetch(`/api/usernames?username=${encodeURIComponent(normalized)}`, { cache: 'no-store' });
-    const data = await response.json();
-    return response.ok ? data : { error: data.error ?? 'Could not check username.' };
-  };
-
   const save = async () => {
     if (!user?.id || !address || !username.trim()) return;
     setLoading(true);
     setStatus('');
     try {
-      const check = await checkAvailability(username);
-      if (check && check.error) throw new Error(check.error);
-      if (check && !check.available && check.username) throw new Error('That username is already taken.');
       const response = await fetch('/api/usernames', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
