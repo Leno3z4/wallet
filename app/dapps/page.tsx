@@ -1,0 +1,4 @@
+import { ExternalLink, ShieldOff } from 'lucide-react';
+import { AuthGate } from '@/components/auth-gate';
+import { AppShell } from '@/components/app-shell';
+export default function Dapps(){return <AuthGate><AppShell title="Connected dapps" eyebrow="Connections"><div className="panel"><div className="panel-head"><div><span className="muted-label">Permissions</span><h2>Sites connected to your wallet</h2></div><button className="secondary">Connect a site</button></div><div className="empty-state"><div className="empty-icon"><ShieldOff size={18}/></div><strong>No dapps connected</strong><span>When a site requests access, you’ll see its account, network permissions and approval status here.</span></div></div><div className="feature-strip"><div><span className="muted-label">Safety</span><h2>Review before signing.</h2><p>Connected sites never get private keys. Transactions still require explicit approval.</p></div><ExternalLink size={18}/></div></AppShell></AuthGate>}
