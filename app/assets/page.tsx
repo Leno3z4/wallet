@@ -1,3 +1,4 @@
 import { AuthGate } from '@/components/auth-gate';
-import { AppShell, TokenRow, StatCard } from '@/components/app-shell';
-export default function Assets(){return <AuthGate><AppShell title="Assets" eyebrow="Portfolio"><div className="stats-grid"><StatCard label="Portfolio value" value="$0.00" note="Live estimate"/><StatCard label="Tokens" value="0" note="Across all networks"/><StatCard label="Networks" value="5" note="Enabled"/></div><div className="panel"><div className="panel-head"><div><span className="muted-label">All balances</span><h2>Tokens</h2></div><button className="secondary">Manage tokens</button></div><TokenRow symbol="ETH" name="Ethereum" network="Ethereum"/><TokenRow symbol="E" name="Ether" network="Base"/><TokenRow symbol="$" name="USD Coin" network="Base" amount="0.00 USDC"/><TokenRow symbol="$" name="USD Coin" network="Arbitrum" amount="0.00 USDC"/></div></AppShell></AuthGate>}
+import { AppShell } from '@/components/app-shell';
+import { LiveBalances } from '@/components/live-wallet';
+export default function Assets(){return <AuthGate><AppShell title="Assets"><div className="panel"><div className="panel-head"><h2>Balances</h2></div><LiveBalances/></div></AppShell></AuthGate>}
