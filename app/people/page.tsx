@@ -1,0 +1,4 @@
+import { Plus, Search, UserRound } from 'lucide-react';
+import { AuthGate } from '@/components/auth-gate';
+import { AppShell } from '@/components/app-shell';
+export default function People(){return <AuthGate><AppShell title="People" eyebrow="Wallet memory"><div className="toolbar"><input className="search-input" placeholder="Search people or wallet addresses…"/><button className="primary"><Plus size={16}/> Add person</button></div><div className="panel"><div className="panel-head"><div><span className="muted-label">Saved</span><h2>Your contacts</h2></div></div><div className="empty-state"><div className="empty-icon"><UserRound size={20}/></div><strong>No saved people yet</strong><span>Save a wallet address with a name so you never have to recognize 0x… again.</span><button className="secondary">Add your first person</button></div></div></AppShell></AuthGate>}
