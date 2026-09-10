@@ -1,0 +1,4 @@
+import { Check, Network } from 'lucide-react';
+import { AuthGate } from '@/components/auth-gate';
+import { AppShell } from '@/components/app-shell';
+export default function Networks(){const chains=[['Ethereum','ETH','Mainnet'],['Base','ETH','L2'],['Arbitrum','ETH','L2'],['Optimism','ETH','L2'],['Polygon','POL','PoS']];return <AuthGate><AppShell title="Networks" eyebrow="Multichain"><div className="panel"><div className="panel-head"><div><span className="muted-label">Supported networks</span><h2>Choose where you transact</h2></div></div>{chains.map(([name,symbol,type])=><div className="setting-row" key={name}><div className="chain-icon">{name[0]}</div><span><b>{name}</b><small>{type} · {symbol}</small></span><span className="status-chip"><Check size={12}/> Enabled</span></div>)}<button className="secondary" style={{marginTop:16}}><Network size={16}/> Add custom EVM network</button></div></AppShell></AuthGate>}
