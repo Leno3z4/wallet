@@ -1,4 +1,11 @@
-import { Check, Network } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Check, FlaskConical, Network } from 'lucide-react';
 import { AuthGate } from '@/components/auth-gate';
 import { AppShell } from '@/components/app-shell';
-export default function Networks(){const chains=[['Ethereum','ETH','Mainnet'],['Base','ETH','L2'],['Arbitrum','ETH','L2'],['Optimism','ETH','L2'],['Polygon','POL','PoS']];return <AuthGate><AppShell title="Networks" eyebrow="Multichain"><div className="panel"><div className="panel-head"><div><span className="muted-label">Supported networks</span><h2>Choose where you transact</h2></div></div>{chains.map(([name,symbol,type])=><div className="setting-row" key={name}><div className="chain-icon">{name[0]}</div><span><b>{name}</b><small>{type} · {symbol}</small></span><span className="status-chip"><Check size={12}/> Enabled</span></div>)}<button className="secondary" style={{marginTop:16}}><Network size={16}/> Add custom EVM network</button></div></AppShell></AuthGate>}
+import { MAINNET_CHAINS, TESTNET_CHAINS } from '@/lib/chains';
+
+function NetworkRow({ entry }: { entry: (typeof MAINNET_CHAINS)[number] | (typeof TESTNET_CHAINS)[number] }) {
+  return <Link href={`/networks/${entry.key}`} className="setting-row network-link"><div className="chain-icon">{entry.name[0]}</div><span><b>{entry.name}</b><small>Chain {entry.chain.id} · {entry.symbol}</small></span><span className="status-chip"><Check size={12}/> Enabled</span><ArrowRight size={16}/></Link>;
+}
+
+export default function Networks(){return <AuthGate><AppShell title="Networks" eyebrow="Multichain"><div className="network-directory"><div className="panel"><div className="panel-head"><div><span className="muted-label">Mainnets</span><h2>Production networks</h2></div></div>{MAINNET_CHAINS.map((entry)=><NetworkRow key={entry.key} entry={entry}/>)}</div><div className="panel"><div className="panel-head"><div><span className="muted-label">Testnets</span><h2>Development networks</h2></div><span className="status-chip"><FlaskConical size={13}/> No financial value</span></div>{TESTNET_CHAINS.map((entry)=><NetworkRow key={entry.key} entry={entry}/>)}</div><div className="panel network-add"><Network size={19}/><div><b>Custom EVM networks</b><p>Add a chain later without changing your wallet address model.</p></div><button className="secondary" type="button">Add network</button></div></div></AppShell></AuthGate>}
