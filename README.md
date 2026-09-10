@@ -1,6 +1,6 @@
 # wallet
 
-A multichain EVM wallet focused on simple payments, wallet memory, and stablecoin-first infrastructure.
+A multichain EVM wallet focused on simple payments, wallet memory, stablecoin-first infrastructure, and agent access.
 
 ## Stack
 
@@ -9,6 +9,25 @@ A multichain EVM wallet focused on simple payments, wallet memory, and stablecoi
 - viem for EVM reads and transaction primitives
 - LI.FI for mainnet swap / bridge routing
 - Circle infrastructure woven into the core wallet UX
+- MCP-compatible remote agent endpoint
+
+## Agent + GPT access
+
+The wallet exposes a remote Model Context Protocol endpoint at:
+
+```text
+/api/mcp
+```
+
+Discovery metadata is available at:
+
+```text
+/.well-known/mcp.json
+```
+
+The MCP server exposes read tools for wallet address context, supported networks, balances, username resolution, payment capabilities, and a transaction-preparation tool. Agent calls can prepare a transfer, but they cannot sign or broadcast it through MCP; the wallet remains the final authorization boundary.
+
+For a deployed app, set an `AGENT_MCP_API_KEY` environment variable and require the agent to send it as a Bearer token. For production multi-user access, replace the shared API-key mode with an OAuth/OIDC identity binding that maps the agent session to a specific wallet user.
 
 ## Circle capabilities integrated into the wallet
 
@@ -17,19 +36,19 @@ Circle is not a separate destination. Its capabilities are used where they make 
 - **USDC + EURC:** first-class stablecoin assets and live balance reads where supported.
 - **Gateway:** unified USDC balance visibility and a foundation for instant crosschain liquidity and nanopayments.
 - **CCTP:** preferred native-USDC rail for supported crosschain movement; CCTP testnet fee/allowance data is exposed to the bridge experience.
-- **Paymaster:** USDC gas option is surfaced for compatible EIP-7702 / smart-account flows without falsely claiming the current Privy wallet is using a Paymaster transaction.
+- **Paymaster:** USDC gas option is surfaced for compatible smart-account flows without falsely claiming the current Privy wallet is using a Paymaster transaction.
 - **Gas Station:** sponsored gas policies are represented in the transfer/payment experience.
 - **Compliance Engine:** screening is represented as a pre-submission safety layer for configured deployments.
 - **Contracts + Modules:** programmable onchain actions and audited contract modules are represented in the transaction/dapp model.
-- **App Kits:** the wallet architecture keeps send, swap, bridge and contract actions modular so Circle SDK components can be attached without rewriting the UI.
+- **App Kits:** send, swap, bridge and contract actions remain modular so Circle SDK components can be attached without rewriting the UI.
 - **Circle Wallets:** compatible wallet-account patterns are reflected in the account architecture.
-- **Circle Payments Network:** payin/payout and stablecoin settlement are represented in the Buy/Sell and payments surfaces for eligible integrations.
+- **Circle Payments Network:** payin/payout and stablecoin settlement are represented in funding and payments surfaces for eligible integrations.
 - **Circle Mint:** institutional mint/redeem liquidity is represented as a funding and settlement rail.
-- **StableFX:** USDC/EURC FX is represented in the multi-currency stablecoin model for future configured settlement flows.
+- **StableFX:** USDC/EURC FX is represented in the multi-currency stablecoin model for configured settlement flows.
 - **xReserve:** USDC-backed stablecoin interoperability is represented in the crosschain infrastructure model.
 - **Arc:** Arc Testnet is surfaced in Networks with its Chain ID and RPC details.
-- **x402 + Gateway Nanopayments:** the Browser can recognize the model for USDC-powered API/service payments and gasless batched payments.
-- **Agent Wallets:** the browser/payment model is compatible with scoped agent spending and service payments.
+- **x402 + Gateway Nanopayments:** the Browser/Agent model supports USDC-powered API/service payments and gasless batched payments.
+- **Agent Wallets:** payment flows can be extended toward scoped agent spending and service payments.
 
 ## Google + automatic wallet creation
 
@@ -79,8 +98,9 @@ Every enabled network has its own page under `/networks/<network-key>`, while th
 - Page switcher dropdown in the top bar
 - Dedicated chain pages for every enabled mainnet/testnet network
 - Stablecoin-oriented funding and payment surfaces
+- Remote MCP endpoint for GPTs and other agents
 - Clean, neutral visual system with no decorative gradients
 
 ## Notes
 
-Testnet assets have no financial value. Some Circle products require developer API credentials, merchant or institutional onboarding, smart-account configuration, or other eligibility requirements. Those flows are surfaced contextually and remain explicitly configuration-dependent until the necessary Circle integration is configured.
+Testnet assets have no financial value. Some Circle products require developer API credentials, merchant or institutional onboarding, smart-account configuration, or other eligibility requirements. Those flows are surfaced contextually and remain explicitly configuration-dependent until the necessary integration is configured.
