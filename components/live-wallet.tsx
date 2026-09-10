@@ -4,21 +4,23 @@ import { useEffect, useState } from 'react';
 import { useSendTransaction, useWallets } from '@privy-io/react-auth';
 import { createPublicClient, encodeFunctionData, formatEther, formatUnits, http, isAddress, parseEther, parseUnits } from 'viem';
 import { ArrowUpRight, Check, Copy, Loader2, RefreshCw, ShieldCheck, X } from 'lucide-react';
-import { ERC20_ABI, SUPPORTED_CHAINS, USDC, ZERO_ADDRESS } from '@/lib/chains';
+import { ERC20_ABI, MAINNET_CHAINS, SUPPORTED_CHAINS, USDC, ZERO_ADDRESS } from '@/lib/chains';
 
 function useWalletAddress() {
   const { wallets } = useWallets();
   return wallets.find((w) => w.walletClientType === 'privy')?.address ?? wallets[0]?.address ?? '';
 }
 
+type BalanceState = { native: string; usdc: string; error?: boolean };
+
 export function LiveBalances({ compact = false }: { compact?: boolean }) {
   const address = useWalletAddress();
-  const [balances, setBalances] = useState<Record<number, { native: string; usdc: string }>>({});
+  const [balances, setBalances] = useState<Record<number, BalanceState>>({});
   const [loading, setLoading] = useState(false);
   const load = async () => {
     if (!address) return;
     setLoading(true);
-    const next: Record<number, { native: string; usdc: string }> = {};
+    const next: Record<number, BalanceState> = {};
     await Promise.all(SUPPORTED_CHAINS.map(async ({ chain }) => {
       try {
         const client = createPublicClient({ chain, transport: http() });
@@ -27,15 +29,15 @@ export function LiveBalances({ compact = false }: { compact?: boolean }) {
         const token = USDC[chain.id];
         if (token) usdc = formatUnits(await client.readContract({ address: token, abi: ERC20_ABI, functionName: 'balanceOf', args: [address as `0x${string}`] }) as bigint, 6);
         next[chain.id] = { native: formatEther(native), usdc };
-      } catch { next[chain.id] = { native: '0', usdc: '0' }; }
+      } catch { next[chain.id] = { native: '—', usdc: '—', error: true }; }
     }));
     setBalances(next); setLoading(false);
   };
   useEffect(() => { void load(); }, [address]);
-  const totalNative = Object.values(balances).reduce((sum, b) => sum + Number(b.native), 0);
-  const totalUsdc = Object.values(balances).reduce((sum, b) => sum + Number(b.usdc), 0);
+  const totalNative = MAINNET_CHAINS.reduce((sum, { chain }) => sum + Number(balances[chain.id]?.native ?? 0), 0);
+  const totalUsdc = MAINNET_CHAINS.reduce((sum, { chain }) => sum + Number(balances[chain.id]?.usdc ?? 0), 0);
   if (compact) return <div className="live-inline">{loading ? 'Loading…' : `${totalNative.toFixed(4)} ETH · ${totalUsdc.toFixed(2)} USDC`} <button className="plain-icon" onClick={load} aria-label="Refresh"><RefreshCw size={14}/></button></div>;
-  return <div className="balance-list"><div className="live-summary"><div><strong>{totalNative.toFixed(4)} ETH</strong><span>Native</span></div><div><strong>{totalUsdc.toFixed(2)} USDC</strong><span>Stablecoins</span></div><button className="secondary" onClick={load} disabled={loading}>{loading?<Loader2 className="spin" size={16}/>:<RefreshCw size={16}/>} Refresh</button></div>{SUPPORTED_CHAINS.map(({ chain, name, symbol })=>{const b=balances[chain.id];return <div className="live-chain" key={chain.id}><div className="chain-icon">{name[0]}</div><div><strong>{name}</strong><span>{b?`${b.native} ${symbol}`:'Loading…'}</span></div><div className="live-values"><strong>{b?.native??'—'}</strong><span>{b?`${b.usdc} USDC`:'—'}</span></div></div>})}</div>;
+  return <div className="balance-list"><div className="live-summary"><div><strong>{totalNative.toFixed(4)} ETH</strong><span>Mainnet native</span></div><div><strong>{totalUsdc.toFixed(2)} USDC</strong><span>Mainnet stablecoins</span></div><button className="secondary" onClick={load} disabled={loading}>{loading?<Loader2 className="spin" size={16}/>:<RefreshCw size={16}/>} Refresh</button></div>{SUPPORTED_CHAINS.map(({ chain, name, symbol, environment })=>{const b=balances[chain.id];return <div className={`live-chain ${environment==='testnet'?'testnet-row':''}`} key={chain.id}><div className="chain-icon">{name[0]}</div><div><strong>{name}</strong><span>{b?.error?'RPC unavailable':b?`${b.native} ${symbol}`:'Loading…'}</span></div><div className="live-values"><strong>{b?.error?'—':b?.native??'—'}</strong><span>{b?.error?'—':`${b?.usdc??'—'} USDC`}</span></div></div>})}</div>;
 }
 
 export function SendForm() {
@@ -51,5 +53,5 @@ export function LifiAction({ mode }: { mode:'swap'|'bridge' }) {
   const address=useWalletAddress(); const {sendTransaction}=useSendTransaction(); const [fromChain,setFromChain]=useState(8453); const [toChain,setToChain]=useState(42161); const [amount,setAmount]=useState('0.01'); const [quote,setQuote]=useState<any>(null); const [loading,setLoading]=useState(false); const [error,setError]=useState('');
   const getQuote=async()=>{if(!address||Number(amount)<=0)return;setLoading(true);setError('');setQuote(null);const targetChain=mode==='swap'?fromChain:toChain;const params=new URLSearchParams({fromChain:String(fromChain),toChain:String(targetChain),fromToken:ZERO_ADDRESS,toToken:USDC[targetChain]??ZERO_ADDRESS,fromAmount:parseEther(amount).toString(),fromAddress:address,toAddress:address,slippage:'0.005'});try{const r=await fetch(`https://li.quest/v1/quote?${params}`);if(!r.ok)throw new Error(`Quote unavailable (${r.status})`);setQuote(await r.json())}catch(e){setError(e instanceof Error?e.message:'Could not fetch quote')}setLoading(false)};
   const execute=async()=>{if(!quote?.transactionRequest||!address)return;try{const tx=quote.transactionRequest;const result=await sendTransaction({to:tx.to,data:tx.data,value:tx.value?BigInt(tx.value):undefined,chainId:Number(tx.chainId??fromChain)},{address});setQuote({...quote,executed:result.hash})}catch(e){setError(e instanceof Error?e.message:'Execution failed')}};
-  return <div className="form-card"><div className="form-heading"><h2>{mode==='swap'?'Swap':'Bridge'}</h2><span>Route, review, sign.</span></div><div className="bridge-route"><label className="field"><span>From</span><select value={fromChain} onChange={(e)=>setFromChain(Number(e.target.value))}>{SUPPORTED_CHAINS.map(x=><option key={x.chain.id} value={x.chain.id}>{x.name}</option>)}</select></label>{mode==='bridge'&&<label className="field"><span>To</span><select value={toChain} onChange={(e)=>setToChain(Number(e.target.value))}>{SUPPORTED_CHAINS.map(x=><option key={x.chain.id} value={x.chain.id}>{x.name}</option>)}</select></label>}</div><label className="field"><span>Amount</span><div className="input-combo"><input inputMode="decimal" value={amount} onChange={(e)=>setAmount(e.target.value)}/><b>ETH</b></div></label>{quote&&<div className="quote-card"><div><span>You receive</span><strong>{quote.estimate?.toAmount??'—'} {quote.action?.toToken?.symbol??'USDC'}</strong></div><div><span>Route</span><strong>{quote.toolDetails?.name??quote.type??'LI.FI'}</strong></div></div>}{error&&<div className="notice error">{error}</div>}{quote?.executed?<div className="notice success"><Check size={15}/> Submitted · {quote.executed.slice(0,12)}…</div>:<div className="button-row"><button className="secondary" onClick={getQuote} disabled={loading}>{loading?<Loader2 className="spin" size={16}/>:<RefreshCw size={16}/>} Get quote</button>{quote&&<button className="primary" onClick={execute}>Confirm route <ShieldCheck size={16}/></button>}</div>}</div>;
+  return <div className="form-card"><div className="form-heading"><h2>{mode==='swap'?'Swap':'Bridge'}</h2><span>Route, review, sign.</span></div><div className="bridge-route"><label className="field"><span>From</span><select value={fromChain} onChange={(e)=>setFromChain(Number(e.target.value))}>{MAINNET_CHAINS.map(x=><option key={x.chain.id} value={x.chain.id}>{x.name}</option>)}</select></label>{mode==='bridge'&&<label className="field"><span>To</span><select value={toChain} onChange={(e)=>setToChain(Number(e.target.value))}>{MAINNET_CHAINS.map(x=><option key={x.chain.id} value={x.chain.id}>{x.name}</option>)}</select></label>}</div><label className="field"><span>Amount</span><div className="input-combo"><input inputMode="decimal" value={amount} onChange={(e)=>setAmount(e.target.value)}/><b>ETH</b></div></label>{quote&&<div className="quote-card"><div><span>You receive</span><strong>{quote.estimate?.toAmount??'—'} {quote.action?.toToken?.symbol??'USDC'}</strong></div><div><span>Route</span><strong>{quote.toolDetails?.name??quote.type??'LI.FI'}</strong></div></div>}{error&&<div className="notice error">{error}</div>}{quote?.executed?<div className="notice success"><Check size={15}/> Submitted · {quote.executed.slice(0,12)}…</div>:<div className="button-row"><button className="secondary" onClick={getQuote} disabled={loading}>{loading?<Loader2 className="spin" size={16}/>:<RefreshCw size={16}/>} Get quote</button>{quote&&<button className="primary" onClick={execute}>Confirm route <ShieldCheck size={16}/></button>}</div>}</div>;
 }
