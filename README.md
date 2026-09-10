@@ -6,11 +6,12 @@ A multichain EVM wallet focused on simple payments, human-readable transaction r
 
 - Next.js + React + TypeScript
 - Privy for Google authentication and embedded EVM wallets
-- viem for EVM primitives
+- viem for EVM reads and transaction primitives
+- LI.FI for swap / bridge routing
 
 ## Google + automatic wallet creation
 
-Create a Privy app and configure Google as a login method. The app is configured to create an embedded Ethereum wallet automatically for users who do not already have one.
+Configure Google as a login method in Privy and enable embedded Ethereum wallets with `createOnLogin: 'users-without-wallets'`.
 
 Set:
 
@@ -25,16 +26,23 @@ npm install
 npm run dev
 ```
 
-The supported EVM networks in the first UI pass are Ethereum, Base, Arbitrum, Optimism, and Polygon. The wallet address is chain-agnostic; network selection is handled at the transaction layer.
+## Supported EVM networks
 
-## Current MVP
+Ethereum, Base, Arbitrum, Optimism, and Polygon use the same EVM wallet address. Network selection happens at the transaction layer.
+
+## Current app
 
 - Google login
 - Automatic embedded EVM wallet creation
-- Multichain network overview
-- Wallet address + copy
-- Send flow with transaction review step
-- Basic assets/activity layout
-- Responsive desktop/mobile UI
+- Multichain live native + USDC balance reads
+- Real ETH and USDC transfer signing through Privy
+- Human-readable transfer review
+- LI.FI swap quotes and executable transaction requests
+- LI.FI cross-chain bridge quotes and executable transaction requests
+- Receive page with the live wallet address
+- Separate Assets, Transfer, Swap, Bridge, Buy / sell, Transactions, People, Browser, Networks, Connected dapps, and Settings pages
+- Clean, neutral visual system with no decorative gradients
 
-Balances and onchain activity are the next integration layer; the current interface deliberately keeps those views lightweight until RPC/indexer choices are finalized.
+## Notes
+
+The buy / sell surface is provider-ready but fiat onramp/offramp requires a configured provider and the appropriate compliance flow. Full cross-site Web3 browser provider injection requires a browser extension or mobile deep-link environment; the web app keeps the browser surface intentionally isolated.
