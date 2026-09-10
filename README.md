@@ -1,6 +1,6 @@
 # wallet
 
-A multichain EVM wallet focused on simple payments, human-readable transaction review, and wallet memory.
+A multichain EVM wallet focused on simple payments, human-readable transaction review, wallet memory, and Circle-powered stablecoin infrastructure.
 
 ## Stack
 
@@ -8,7 +8,30 @@ A multichain EVM wallet focused on simple payments, human-readable transaction r
 - Privy for Google authentication and embedded EVM wallets
 - viem for EVM reads and transaction primitives
 - LI.FI for mainnet swap / bridge routing
-- Circle USDC infrastructure patterns for stablecoin payments, CCTP, Gateway, and Paymaster-ready UX
+- Circle infrastructure for USDC, CCTP, Gateway, and Circle product integrations
+
+## Circle product surface
+
+The `/circle` page now brings together Circle's current developer stack in the wallet UX:
+
+- USDC and EURC asset model
+- Circle Wallets
+- Circle Contracts
+- CCTP
+- Gateway unified USDC
+- Paymaster USDC gas abstraction
+- Gas Station sponsored fees
+- Compliance Engine transaction screening
+- Modules for programmable onchain actions
+- App Kits for send / swap / bridge application flows
+- Arc settlement network
+- xReserve USDC-backed stablecoins
+- Circle Payments Network for global partner settlement
+- Circle Mint for institutional mint / redeem flows
+- x402 for USDC-powered internet / agent payments
+- Circle Console developer management
+
+Gateway testnet balances are queried through Circle's Gateway API, and CCTP testnet Fast Transfer allowance + route fee data are queried from Circle's public APIs. Products requiring developer credentials, smart-account infrastructure, merchant onboarding, or institutional access are shown as ready / partner integrations rather than being falsely marked live.
 
 ## Google + automatic wallet creation
 
@@ -41,13 +64,6 @@ Testnets: Ethereum Sepolia, Base Sepolia, Arbitrum Sepolia, Optimism Sepolia, Po
 
 Every network has its own page under `/networks/<network-key>`, while the same EVM wallet address can be used across the network set.
 
-## Circle features used in the product model
-
-- Circle-issued USDC addresses are tracked for the supported mainnets and testnets.
-- Circle CCTP V2 contract/domain metadata is included for USDC burn-and-mint bridging.
-- Circle Gateway is represented as the unified-USDC liquidity path for compatible integrations.
-- Circle Paymaster is represented as a gas-with-USDC option for ERC-4337 smart-account deployments; the current Privy wallet is still an EOA, so Paymaster execution is not falsely presented as enabled.
-
 ## Current app
 
 - Google login
@@ -56,8 +72,9 @@ Every network has its own page under `/networks/<network-key>`, while the same E
 - Real ETH and USDC transfer signing through Privy
 - Human-readable transfer review
 - Mainnet-only LI.FI swap and bridge quotes with executable transaction requests
+- Circle Gateway unified-USDC balance visibility on testnet
+- Circle CCTP testnet Fast Transfer allowance and fee visibility
 - Username-based recipient resolution
-- Separate Assets, Transfer, Swap, Bridge, Buy / sell, Transactions, People, Browser, Networks, Connected dapps, and Settings pages
 - Page switcher dropdown in the top bar
 - Dedicated chain pages for every enabled mainnet and testnet
 - Clean, neutral visual system with no decorative gradients
