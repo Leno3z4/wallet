@@ -1,0 +1,4 @@
+import { ArrowLeftRight } from 'lucide-react';
+import { AuthGate } from '@/components/auth-gate';
+import { ToolPage, SelectBox, AmountBox, ActionButton } from '@/components/tool-page';
+export default function Swap(){return <AuthGate><ToolPage title="Swap" eyebrow="Trade" description="Swap tokens without leaving your wallet."><div className="form-card"><SelectBox label="You pay" options={['ETH','USDC','USDT']} value="ETH" onChange={()=>{}}/><AmountBox symbol="ETH"/><div className="swap-divider"><button className="round-button"><ArrowLeftRight size={17}/></button></div><SelectBox label="You receive" options={['USDC','USDT','ETH']} value="USDC" onChange={()=>{}}/><div className="quote-row"><span>Rate</span><strong>1 ETH ≈ — USDC</strong></div><div className="quote-row"><span>Network fee</span><strong>Calculated at swap</strong></div><ActionButton>Review swap <ArrowLeftRight size={17}/></ActionButton></div></ToolPage></AuthGate>}
